@@ -33,10 +33,11 @@ class Table:
         self.created_time = datetime.now()
 
     def add_column(self, column, column_type):
-        if column in self.columns:
+        if column in self.columns_map.keys():
             print(f"{column} column already in table")
             return -1
         self.columns_map[column] = column_type
+        print("Column added successfully")
         return 1
 
     def delete_column(self, column):
@@ -191,6 +192,8 @@ def run():
         "number": "200",
     }
     table.update_row(row_id, row_data)
+
+    table.add_column("country", str)
     
 
 if __name__=='__main__':
