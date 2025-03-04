@@ -125,12 +125,7 @@ class Row:
         return self.row_data
 
     def update_row(self, row_data):
-        for column, value in row_data.items():
-            if type(value) != self.columns_type[column]:
-                print("Invalid column type.")
-                return -1
-        for column, value in row_data.items():
-            self.row_data[column] = value
+        self.row_data = row_data
         return 1
     
     def __repr__(self):
