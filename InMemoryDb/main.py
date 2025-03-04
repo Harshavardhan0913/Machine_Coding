@@ -1,8 +1,9 @@
+from datetime import datetime
 class Database:
     def __init__(self):
         self.tables = {}
         self.table_id = 1
-        pass
+        self.created_time = datetime.now()
 
     def create_table(self, columns = []):
         self.tables[self.table_id] = Table(columns)
@@ -29,6 +30,7 @@ class Table:
         self.row_id = 1
         self.columns_map = columns
         self.index = {}
+        self.created_time = datetime.now()
 
     def add_column(self, column, column_type):
         if column in self.columns:
@@ -49,9 +51,13 @@ class Table:
         if not row_data:
             print("Row is empty")
             return -1
+        row_columns = row_data.keys()
+        if set(row_columns) != set(self.columns_map.keys()):
+            print("Invalid Columns")
+            return -1
         for column in row_data.keys():
-            if column not in self.columns_map.keys() or type(row_data[column])!= self.columns_map[column]:
-                print("Incorrect column.")
+            if type(row_data[column])!= self.columns_map[column]:
+                print("Incorrect column type")
                 return -1
         row_id = self.row_id
         for column_name, value in row_data.items():
@@ -120,6 +126,7 @@ class Row:
     def __init__(self, row_data, columns_type):
         self.row_data = row_data
         self.columns_type = columns_type
+        self.created_time = datetime.now()
     
     def get_row(self):
         return self.row_data
@@ -146,6 +153,11 @@ def run():
         "city": "Hyderabad"
     }
     row_id = table.create_row(row_data)
+    row_data = {
+        "name": "Harsha",
+        "city": "Hyderabad"
+    }
+    table.create_row(row_data)
     table.get_all_rows()
     table.get_row(row_id)
     table.delete_row(row_id)
