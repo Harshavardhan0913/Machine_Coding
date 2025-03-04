@@ -24,12 +24,48 @@ class Database:
         return self.tables[table_id]
         
 
+class Index:
+    def __init__(self):
+        self.index = {}
+    
+    def add_row_id(self, column, value, row_id):
+        if column not in self.index:
+            self.index[column] = {}
+        if value not in self.index[column]:
+            self.index[column][value] = []
+        self.index[column][value].append(row_id)
+        print("Added row to index")
+    
+    def delete_row_id(self, column, value, row_id):
+        if column not in self.index:
+            print("Column not present in index")
+        if value not in self.index[column]:
+            print("Value not present in column")
+        if row_id not in self.index[column][value]:
+            print("Row id not present in value")
+        self.index[column][value].remove(row_id)
+        print("Successfully Deleted row_id")
+    
+    def get_row_ids(self, column, value):
+        if column not in self.index:
+            print("Column not present in index")
+        if value not in self.index[column]:
+            print("Value not present in column")
+        return self.index[column][value]
+
+    def delete_column(self, column):
+        if column not in self.index:
+            print("Column not present in index")
+        del self.index[column]
+        print("Column deleted from index")
+
+
 class Table:
     def __init__(self, columns:dict={}):
         self.rows = {}
         self.row_id = 1
         self.columns_map = columns
-        self.index = {}
+        self.index = Index()
         self.created_time = datetime.now()
 
     def add_column(self, column, column_type):
@@ -45,7 +81,7 @@ class Table:
             print(f"{column} column not in table")
             return -1
         del self.columns_map[column]
-        del self.index[column]
+        self.index.delete_column(column)
         return 1
 
     def create_row(self, row_data: dict):
@@ -62,11 +98,7 @@ class Table:
                 return -1
         row_id = self.row_id
         for column_name, value in row_data.items():
-            if column_name not in self.index:
-                self.index[column_name] = {}
-            if value not in self.index[column_name]:
-                self.index[column_name][value] = []
-            self.index[column_name][value].append(row_id)
+            self.index.add_row_id(column_name, value, row_id)
         self.rows[row_id] = Row(row_data, self.columns_map)
         self.row_id += 1
         print("Successfully created row")
@@ -79,10 +111,7 @@ class Table:
         row = self.rows[row_id].get_row()
         del self.rows[row_id]
         for column, value in row.items():
-            if column in self.index:
-                if value in self.index[column]:
-                    if row_id in self.index[column][value]:
-                        self.index[column][value].remove(row_id)
+            self.index.delete_row_id(column, value, row_id)
         print(f"Successfully deleted row: {row_id}")
         return 1
     
@@ -93,13 +122,7 @@ class Table:
         print(f"Row id: {row_id} Data: {self.rows[row_id]}")
 
     def get_rows_by_index(self, column_name, value):
-        if column_name not in self.index.keys():
-            print("Column not present in index")
-            return -1
-        if value not in self.index[column_name].keys():
-            print("Value not present in column")
-            return -1
-        row_ids = self.index[column_name][value]
+        row_ids = self.index.get_row_ids(column_name, value)
         for row_id in row_ids:
             print(f"Row id: {row_id} Data: {self.rows[row_id]}")
 
